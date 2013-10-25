@@ -34,3 +34,10 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+
+# run-time log
+*.log
+
+# virtualenv
+venv
