@@ -1,0 +1,6 @@
+argparse==1.2.1
+bottle==0.11.6
+lxml==3.2.3
+pymongo==2.6.3
+requests==2.0.1
+wsgiref==0.1.2
