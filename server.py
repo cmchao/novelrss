@@ -36,11 +36,12 @@ def get_page(url = None):
 
 def parse_page_info(url = None):
     """ return title : novel_name
-               url   : first page url of novel
-               comments : postid_1 : [publish date, content_str]
-                          postid_2 : 
-                          ..
-                          poitid_n : [publish date, content_str]
+               link  : to the last page
+               post  : postid_1 : {'title' :
+                                   'pubDate' :
+                                   'description' : }
+
+
     """
 
     if not url:
@@ -48,10 +49,10 @@ def parse_page_info(url = None):
         return None
 
     #get total page number
-    url_first = convert_to_page(url=url, page_num = 1)
-    page = get_page(url_first)
+    url = convert_to_page(url=url, page_num = 1)
+    page = get_page(url)
     if not page:
-        logging.error("can't get page. '%s', '%d'" % (url_first, 1))
+        logging.error("can't get page. '%s', '%d'" % (url, 1))
         return None
 
     page_tree = lxml.html.fromstring(page)
@@ -79,13 +80,13 @@ def parse_page_info(url = None):
     if not post_items:
         logging.error("can't find any comment on last page. '%s'" % (url))
 
-    ret_data = {'title' : post_items[0].text,
-                'url' : url_first,
-                'comments' : {}}
+    ret_data = {'title' : "un-implemented",
+                'link' : url,
+                'post' : {}}
 
     for entry in post_items:
         for tag in entry.iterchildren():
-            comment_str = lxml.html.tostring(entry, encoding="utf-8")
+            post_content = lxml.html.tostring(entry, encoding="utf-8")
 
         postid = entry.attrib['id'].split("_")[1]
 
@@ -94,7 +95,9 @@ def parse_page_info(url = None):
             logging.error("can't find related published data. postid '%s', url '%s'" %
                                 postid,  url)
         for tag in time_items[0].iterchildren():
-            ret_data['comments'][postid] = [tag.attrib['title'], comment_str]
+            ret_data['post'][postid] = {"title" : entry.text,
+                                        "pubData" : tag.attrib['title'],
+                                        "description" : post_content}
             break
 
     return ret_data
