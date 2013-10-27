@@ -87,9 +87,7 @@ def parse_page_info(url = None):
                 'post' : {}}
 
     for entry in post_items:
-        for tag in entry.iterchildren():
-            post_content = lxml.html.tostring(entry)
-
+        post_content = lxml.html.tostring(entry, encoding="utf-8")
         postid = entry.attrib['id'].split("_")[1]
 
         time_items = page_tree.xpath("//em[@id = 'authorposton%s']" % (postid))
@@ -116,7 +114,7 @@ def generate_rss2(novel_data):
     rss = PyRSS2Gen.RSS2(title=novel_data['title'], link=novel_data['link'],
                          description=novel_data['description'], items=items)
 
-    rss.write_xml(open("/tmp/tt.xml", "w"))
+    rss.write_xml(open("/tmp/tt.xml", "w"), encoding="utf-8")
 
 
 def run():
