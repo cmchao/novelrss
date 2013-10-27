@@ -4,6 +4,7 @@ import logging
 import lxml.html
 import os
 import pymongo
+import PyRSS2Gen
 import re
 import requests
 import sys
@@ -82,11 +83,12 @@ def parse_page_info(url = None):
 
     ret_data = {'title' : "un-implemented",
                 'link' : url,
+                'description' : "un-implemented",
                 'post' : {}}
 
     for entry in post_items:
         for tag in entry.iterchildren():
-            post_content = lxml.html.tostring(entry, encoding="utf-8")
+            post_content = lxml.html.tostring(entry)
 
         postid = entry.attrib['id'].split("_")[1]
 
@@ -103,11 +105,27 @@ def parse_page_info(url = None):
     return ret_data
 
 
+def generate_rss2(novel_data):
+    items = []
+    for post in novel_data['post'].values():
+        items.append(PyRSS2Gen.RSSItem(
+                             title=post['title'], link=novel_data['link'],
+                             description = post['description'], pubDate=post['pubData'])
+                    )
+
+    rss = PyRSS2Gen.RSS2(title=novel_data['title'], link=novel_data['link'],
+                         description=novel_data['description'], items=items)
+
+    rss.write_xml(open("/tmp/tt.xml", "w"))
+
+
 def run():
     url = "http://ck101.com/thread-2510702-30-3.html"
     novel_data = parse_page_info(url)
     if not novel_data:
         logging.error("can't parse page '%s'" % (url))
+
+    generate_rss2(novel_data)
 
 
 if __name__ == "__main__":
