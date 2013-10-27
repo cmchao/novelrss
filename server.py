@@ -2,8 +2,19 @@
 # -*- coding: utf-8 -*-
 import logging
 import lxml.html
+import os
+import pymongo
 import re
 import requests
+
+def get_collections():
+    """ get default collection from mongodb """
+    ### Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname
+    ### MONGODB_URL is default environemnt variable pass by heroku
+    mongodb_url = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/test")
+    client = pymongo.MongoClient(mongodb_url)
+    db = client.get_default_database()
+    return db['novels']
 
 def convert_to_page(url, page_num):
     """ convert any comment page to its first page """
@@ -33,7 +44,7 @@ def parse_page_info(url = None):
 
     if not url:
         logging.error("empty url")
-        return
+        return None
 
     #get total page number
     url_first = convert_to_page(url=url, page_num = 1)
