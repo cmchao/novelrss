@@ -6,6 +6,7 @@ import os
 import pymongo
 import re
 import requests
+import sys
 
 def get_collections():
     """ get default collection from mongodb """
@@ -36,10 +37,10 @@ def get_page(url = None):
 def parse_page_info(url = None):
     """ return title : novel_name
                url   : first page url of novel
-               comments : postid_1 : content 1
-                          postid_2 : content 2
+               comments : postid_1 : [publish date, content_str]
+                          postid_2 : 
                           ..
-                          poitid_n : content n
+                          poitid_n : [publish date, content_str]
     """
 
     if not url:
@@ -74,26 +75,36 @@ def parse_page_info(url = None):
         return None
 
     page_tree = lxml.html.fromstring(page)
-    items = page_tree.xpath("//td[@class = 't_f']")
-    if not items:
+    post_items = page_tree.xpath("//td[@class = 't_f']")
+    if not post_items:
         logging.error("can't find any comment on last page. '%s'" % (url))
 
-    ret_data = {'title' : items[0].text,
+    ret_data = {'title' : post_items[0].text,
                 'url' : url_first,
                 'comments' : {}}
 
-    for entry in items:
+    for entry in post_items:
         for tag in entry.iterchildren():
             comment_str = lxml.html.tostring(entry, encoding="utf-8")
 
-        ret_data['comments'][entry.attrib['id']] = comment_str
+        postid = entry.attrib['id'].split("_")[1]
+
+        time_items = page_tree.xpath("//em[@id = 'authorposton%s']" % (postid))
+        if not time_items:
+            logging.error("can't find related published data. postid '%s', url '%s'" %
+                                postid,  url)
+        for tag in time_items[0].iterchildren():
+            ret_data['comments'][postid] = [tag.attrib['title'], comment_str]
+            break
 
     return ret_data
 
 
 def run():
     url = "http://ck101.com/thread-2510702-30-3.html"
-    ret = parse_page_info(url)
+    novel_data = parse_page_info(url)
+    if not novel_data:
+        logging.error("can't parse page '%s'" % (url))
 
 
 if __name__ == "__main__":
