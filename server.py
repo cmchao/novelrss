@@ -87,6 +87,13 @@ def parse_page_info(url = None):
                 'post' : {}}
 
     for entry in post_items:
+        if not entry.text or (entry.text and len(entry.text) < 5):
+            for tag in entry.iterdescendants():
+                if tag.text and len(tag.text) > 5:
+                    post_title = tag.text
+        else:
+            post_title = entry.text
+
         post_content = lxml.html.tostring(entry, encoding="utf-8")
         postid = entry.attrib['id'].split("_")[1]
 
@@ -95,7 +102,7 @@ def parse_page_info(url = None):
             logging.error("can't find related published data. postid '%s', url '%s'" %
                                 postid,  url)
         for tag in time_items[0].iterchildren():
-            ret_data['post'][postid] = {"title" : entry.text,
+            ret_data['post'][postid] = {"title" : post_title,
                                         "pubDate" : tag.attrib['title'],
                                         "description" : post_content}
             break
