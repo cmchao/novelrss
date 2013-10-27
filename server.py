@@ -98,7 +98,7 @@ def parse_page_info(url = None):
                                 postid,  url)
         for tag in time_items[0].iterchildren():
             ret_data['post'][postid] = {"title" : entry.text,
-                                        "pubData" : tag.attrib['title'],
+                                        "pubDate" : tag.attrib['title'],
                                         "description" : post_content}
             break
 
@@ -110,7 +110,7 @@ def generate_rss2(novel_data):
     for post in novel_data['post'].values():
         items.append(PyRSS2Gen.RSSItem(
                              title=post['title'], link=novel_data['link'],
-                             description = post['description'], pubDate=post['pubData'])
+                             description = post['description'], pubDate=post['pubDate'])
                     )
 
     rss = PyRSS2Gen.RSS2(title=novel_data['title'], link=novel_data['link'],
