@@ -12,6 +12,13 @@ import sys
 import time
 import traceback
 
+def validate_url(url):
+    what = re.match("http://ck101.com/thread-(\d+)-\d+-\d+.html", url)
+    if what:
+        return what.group(1)
+    else:
+        raise Exception("illeage url '%s'" % (url))
+
 def convert_to_rfc822(newtime):
     try:
         tm = time.strptime(newtime, "%Y-%m-%d %H:%M:%S")
@@ -146,8 +153,17 @@ def generate_rss2(novel_data):
 def run():
     try:
         url = "http://ck101.com/thread-2510702-30-3.html"
-        novel_data = parse_page_info(url)
-        generate_rss2(novel_data)
+        novel_id = validate_url(url)
+        novels = get_collections()
+        novel_data = novels.find_one({"_id" : novel_id})
+        if novel_data:
+            generate_rss2(novel_data)
+        else:
+            novel_data = parse_page_info(url)
+            novel_data["_id"] = novel_id
+            novels.insert(novel_data)
+            generate_rss2(novel_data)
+
     except Exception as exp:
         logging.error(str(exp))
         logging.error(traceback.format_exc())
