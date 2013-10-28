@@ -9,6 +9,14 @@ import PyRSS2Gen
 import re
 import requests
 import sys
+import time
+
+def convert_to_rfc822(newtime):
+    try:
+        tm = time.strptime(newtime, "%Y-%m-%d %H:%M:%S")
+        return email.utils.formatdate(time.mktime(tm))
+    except :
+        return ""
 
 def get_collections():
     """ get default collection from mongodb """
@@ -116,7 +124,7 @@ def parse_page_info(url = None):
                                 postid,  url)
         for tag in time_items[0].iterchildren():
             ret_data['post'][postid] = {"title" : post_title,
-                                        "pubDate" : tag.attrib['title'],
+                                        "pubDate" : convert_to_rfc822(tag.attrib['title']),
                                         "description" : post_content}
             break
 
