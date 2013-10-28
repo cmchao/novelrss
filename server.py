@@ -62,7 +62,7 @@ def parse_page_info(url = None):
 
     """
     ret_data = {'title' : "un-implemented",
-                'lastBuildData' : email.utils.formatdate(),
+                'lastBuildDate' : email.utils.formatdate(),
                 'first_link' : None,
                 'last_link' : None,
                 'description' : "un-implemented",
@@ -143,7 +143,7 @@ def generate_rss2(novel_data):
                              description = post['description'], pubDate=post['pubDate'])
                     )
 
-    rss = PyRSS2Gen.RSS2(title=novel_data['title'], lastBuildDate=novel_data['lastBuildData'],
+    rss = PyRSS2Gen.RSS2(title=novel_data['title'], lastBuildDate=novel_data['lastBuildDate'],
                          link=novel_data['first_link'], description=novel_data['description'],
                          items=items)
 
@@ -151,19 +151,32 @@ def generate_rss2(novel_data):
 
 
 def run():
+    kUpdatePeriod = 5
+
     try:
         url = "http://ck101.com/thread-2510702-30-3.html"
         novel_id = validate_url(url)
         novels = get_collections()
         novel_data = novels.find_one({"_id" : novel_id})
+
+        do_update = False
+        
         if novel_data:
-            generate_rss2(novel_data)
+            last_time = time.mktime(email.utils.parsedate(novel_data['lastBuildDate']))
+            cur_time = time.mktime(time.gmtime())
+
+            if cur_time - last_time > kUpdatePeriod:
+                do_update = True
         else:
+            do_update = True
+
+        if do_update:
+            logging.info("update '%s'" % (novel_id))
             novel_data = parse_page_info(url)
             novel_data["_id"] = novel_id
-            novels.insert(novel_data)
-            generate_rss2(novel_data)
+            novels.update({'_id':novel_id}, novel_data, upsert=True)
 
+        generate_rss2(novel_data)
     except Exception as exp:
         logging.error(str(exp))
         logging.error(traceback.format_exc())
