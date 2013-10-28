@@ -77,14 +77,21 @@ def parse_page_info(url = None):
         return None
 
     page_tree = lxml.html.fromstring(page)
-    post_items = page_tree.xpath("//td[@class = 't_f']")
-    if not post_items:
-        logging.error("can't find any comment on last page. '%s'" % (url))
 
     ret_data = {'title' : "un-implemented",
                 'link' : url,
                 'description' : "un-implemented",
                 'post' : {}}
+
+    title_items = page_tree.xpath("//title")
+    if not title_items:
+        logging.error("can't novel title. '%s'" % (url))
+
+    ret_data['title'] = title_items[0].text.split("-")[0]
+
+    post_items = page_tree.xpath("//td[@class = 't_f']")
+    if not post_items:
+        logging.error("can't find any comment on last page. '%s'" % (url))
 
     for entry in post_items:
         if not entry.text or (entry.text and len(entry.text) < 5):
