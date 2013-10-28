@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import email.utils
 import logging
 import lxml.html
 import os
@@ -44,6 +45,12 @@ def parse_page_info(url = None):
 
 
     """
+    ret_data = {'title' : "un-implemented",
+                'lastBuildData' : email.utils.formatdate(),
+                'first_link' : None,
+                'last_link' : None,
+                'description' : "un-implemented",
+                'post' : {}}
 
     if not url:
         logging.error("empty url")
@@ -55,6 +62,8 @@ def parse_page_info(url = None):
     if not page:
         logging.error("can't get page. '%s', '%d'" % (url, 1))
         return None
+
+    ret_data['first_link'] = url
 
     page_tree = lxml.html.fromstring(page)
     items = page_tree.xpath("//a[@class = 'last']")
@@ -76,12 +85,9 @@ def parse_page_info(url = None):
         logging.error("can't get page. '%s', '%d'" % (url, total_page_num))
         return None
 
-    page_tree = lxml.html.fromstring(page)
+    ret_data['last_link'] = url
 
-    ret_data = {'title' : "un-implemented",
-                'link' : url,
-                'description' : "un-implemented",
-                'post' : {}}
+    page_tree = lxml.html.fromstring(page)
 
     title_items = page_tree.xpath("//title")
     if not title_items:
@@ -114,6 +120,9 @@ def parse_page_info(url = None):
                                         "description" : post_content}
             break
 
+
+    ret_data
+
     return ret_data
 
 
@@ -121,12 +130,13 @@ def generate_rss2(novel_data):
     items = []
     for post in novel_data['post'].values():
         items.append(PyRSS2Gen.RSSItem(
-                             title=post['title'], link=novel_data['link'],
+                             title=post['title'], link=novel_data['last_link'],
                              description = post['description'], pubDate=post['pubDate'])
                     )
 
-    rss = PyRSS2Gen.RSS2(title=novel_data['title'], link=novel_data['link'],
-                         description=novel_data['description'], items=items)
+    rss = PyRSS2Gen.RSS2(title=novel_data['title'], lastBuildDate=novel_data['lastBuildData'],
+                         link=novel_data['first_link'], description=novel_data['description'],
+                         items=items)
 
     rss.write_xml(open("/tmp/tt.xml", "w"), encoding="utf-8")
 
