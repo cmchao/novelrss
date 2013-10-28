@@ -10,6 +10,7 @@ import re
 import requests
 import sys
 import time
+import traceback
 
 def convert_to_rfc822(newtime):
     try:
@@ -61,23 +62,20 @@ def parse_page_info(url = None):
                 'post' : {}}
 
     if not url:
-        logging.error("empty url")
-        return None
+        raise Exception("empty url")
 
     #get total page number
     url = convert_to_page(url=url, page_num = 1)
     page = get_page(url)
     if not page:
-        logging.error("can't get page. '%s', '%d'" % (url, 1))
-        return None
+        raise Exception("can't get page. '%s', '%d'" % (url, 1))
 
     ret_data['first_link'] = url
 
     page_tree = lxml.html.fromstring(page)
     items = page_tree.xpath("//a[@class = 'last']")
     if not items:
-        logging.error("can't find page number")
-        return None
+        raise Exception("can't find page number")
 
     num_str = items[0].text
     for idx, char in enumerate(num_str):
@@ -90,8 +88,7 @@ def parse_page_info(url = None):
     url = convert_to_page(url=url, page_num=total_page_num)
     page = get_page(url)
     if not page:
-        logging.error("can't get page. '%s', '%d'" % (url, total_page_num))
-        return None
+        raise Exception("can't get page. '%s', '%d'" % (url, total_page_num))
 
     ret_data['last_link'] = url
 
@@ -99,13 +96,13 @@ def parse_page_info(url = None):
 
     title_items = page_tree.xpath("//title")
     if not title_items:
-        logging.error("can't novel title. '%s'" % (url))
+        raise Exception("can't novel title. '%s'" % (url))
 
     ret_data['title'] = title_items[0].text.split("-")[0]
 
     post_items = page_tree.xpath("//td[@class = 't_f']")
     if not post_items:
-        logging.error("can't find any comment on last page. '%s'" % (url))
+        raise Exception("can't find any comment on last page. '%s'" % (url))
 
     for entry in post_items:
         if not entry.text or (entry.text and len(entry.text) < 5):
@@ -120,16 +117,13 @@ def parse_page_info(url = None):
 
         time_items = page_tree.xpath("//em[@id = 'authorposton%s']" % (postid))
         if not time_items:
-            logging.error("can't find related published data. postid '%s', url '%s'" %
+            raise Exception("can't find related published data. postid '%s', url '%s'" %
                                 postid,  url)
         for tag in time_items[0].iterchildren():
             ret_data['post'][postid] = {"title" : post_title,
                                         "pubDate" : convert_to_rfc822(tag.attrib['title']),
                                         "description" : post_content}
             break
-
-
-    ret_data
 
     return ret_data
 
@@ -150,12 +144,13 @@ def generate_rss2(novel_data):
 
 
 def run():
-    url = "http://ck101.com/thread-2510702-30-3.html"
-    novel_data = parse_page_info(url)
-    if not novel_data:
-        logging.error("can't parse page '%s'" % (url))
-
-    generate_rss2(novel_data)
+    try:
+        url = "http://ck101.com/thread-2510702-30-3.html"
+        novel_data = parse_page_info(url)
+        generate_rss2(novel_data)
+    except Exception as exp:
+        logging.error(str(exp))
+        logging.error(traceback.format_exc())
 
 
 if __name__ == "__main__":
