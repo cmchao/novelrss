@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from gevent import monkey; monkey.patch_all()
+
+import bottle
 import email.utils
 import logging
 import lxml.html
@@ -147,7 +150,7 @@ def generate_rss2(novel_data):
                          link=novel_data['first_link'], description=novel_data['description'],
                          items=items)
 
-    rss.write_xml(open("/tmp/tt.xml", "w"), encoding="utf-8")
+    return rss.to_xml(encoding="utf-8")
 
 def setup_log():
     if os.environ.get("USE_HEROKU", None):
@@ -158,7 +161,7 @@ def setup_log():
     requests_log = logging.getLogger("requests")
     requests_log.setLevel(logging.WARNING)
 
-def run():
+def get_rss(url):
     kUpdatePeriod = 5
 
     try:
@@ -184,12 +187,30 @@ def run():
             novel_data["_id"] = novel_id
             novels.update({'_id':novel_id}, novel_data, upsert=True)
 
-        generate_rss2(novel_data)
+        return generate_rss2(novel_data)
     except Exception as exp:
         logging.error(str(exp))
         logging.error(traceback.format_exc())
 
+#
+# web main part
+#
+@bottle.get('/novel')
+@bottle.post('/novel')
+def novel_main():
+    novel_url = bottle.request.forms.get('novel_url')
+    if novel_url:
+        return get_rss(novel_url)
+    else:
+        return '''
+            <form action="/novel" method="post">
+                ck101 小說網址 <input name="novel_url" type="text" />
+            </form>
+        '''
+
 
 if __name__ == "__main__":
     setup_log()
-    run()
+
+    # foreman default return 5000 as port number
+    bottle.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
