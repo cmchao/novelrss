@@ -1,5 +1,8 @@
+PyRSS2Gen==1.1
 argparse==1.2.1
 bottle==0.11.6
+gevent==0.13.8
+greenlet==0.4.1
 lxml==3.2.3
 pymongo==2.6.3
 requests==2.0.1
