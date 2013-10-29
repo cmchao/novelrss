@@ -17,7 +17,7 @@ import time
 import traceback
 
 def validate_url(url):
-    what = re.match("http://ck101.com/thread-(\d+)-\d+-\d+.html", url)
+    what = re.search("ck101.com/thread-(\d+)-\d+-\d+.html", url)
     if what:
         return what.group(1)
     else:
