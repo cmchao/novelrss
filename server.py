@@ -154,10 +154,11 @@ def generate_rss2(novel_data):
     return rss.to_xml(encoding="utf-8")
 
 def setup_log():
+    log_format="%(asctime)-15s:%(levelname)-8s:%(message)s"
     if os.environ.get("USE_HEROKU", None):
-        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+        logging.basicConfig(level=logging.INFO, format=log_format, stream=sys.stdout)
     else:
-        logging.basicConfig(level=logging.INFO, filename="server.log")
+        logging.basicConfig(level=logging.INFO, format=log_format, filename="server.log")
 
     requests_log = logging.getLogger("requests")
     requests_log.setLevel(logging.WARNING)
