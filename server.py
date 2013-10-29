@@ -149,6 +149,14 @@ def generate_rss2(novel_data):
 
     rss.write_xml(open("/tmp/tt.xml", "w"), encoding="utf-8")
 
+def setup_log():
+    if os.environ.get("USE_HEROKU", None):
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    else:
+        logging.basicConfig(level=logging.INFO, filename="server.log")
+
+    requests_log = logging.getLogger("requests")
+    requests_log.setLevel(logging.WARNING)
 
 def run():
     kUpdatePeriod = 5
@@ -183,5 +191,5 @@ def run():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, filename="server.log")
+    setup_log()
     run()
