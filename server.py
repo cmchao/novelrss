@@ -12,6 +12,7 @@ import PyRSS2Gen
 import re
 import requests
 import sys
+import tempfile
 import time
 import traceback
 
@@ -161,7 +162,7 @@ def setup_log():
     requests_log = logging.getLogger("requests")
     requests_log.setLevel(logging.WARNING)
 
-def get_rss(url):
+def get_rss(novel_id):
     kUpdatePeriod = 5
 
     try:
@@ -174,8 +175,7 @@ def get_rss(url):
         
         if novel_data:
             last_time = time.mktime(email.utils.parsedate(novel_data['lastBuildDate']))
-            cur_time = time.mktime(time.gmtime())
-
+            cur_time = time.mktime(time.gmtime()) 
             if cur_time - last_time > kUpdatePeriod:
                 do_update = True
         else:
@@ -200,14 +200,25 @@ def get_rss(url):
 def novel_main():
     novel_url = bottle.request.forms.get('novel_url')
     if novel_url:
-        return get_rss(novel_url)
+        novel_id = validate_url(novel_url)
+        return bottle.redirect('/novel/%s' % (novel_id))
     else:
         return '''
             <form action="/novel" method="post">
                 ck101 小說網址 <input name="novel_url" type="text" />
             </form>
+            <hr>
         '''
 
+@bottle.route('/novel/<novel_id:re:\d+>')
+def novel_xml(novel_id):
+    rss = get_rss(novel_id)
+    fd, filename = tempfile.mkstemp(suffix=".xml")
+    os.write(fd, rss)
+    os.close(fd)
+    logging.info("id:tempfile - %s:%s" % (novel_id, filename))
+
+    return bottle.static_file(os.path.basename(filename), root="/tmp")
 
 if __name__ == "__main__":
     setup_log()
