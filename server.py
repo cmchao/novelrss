@@ -203,13 +203,26 @@ def novel_main():
     if novel_url:
         novel_id = validate_url(novel_url)
         return bottle.redirect('/novel/%s' % (novel_id))
+
     else:
-        return '''
+        novels = get_collections().find()
+        form_str = '''
             <form action="/novel" method="post">
                 ck101 小說網址 <input name="novel_url" type="text" />
             </form>
-            <hr>
         '''
+
+        table_str = "<table>\n"
+        for item in novels:
+            table_str += '''
+            <tr>
+                <td><a href="%s">%s</td>
+                <td><a href="novel/%s">rss</td>
+            </tr>''' % (item['first_link'], item['title'], item["_id"])
+        table_str += "</table>"
+
+        outstr = form_str + "\n<hr>\n" + table_str.encode('utf-8')
+        return outstr
 
 @bottle.route('/novel/<novel_id:re:\d+>')
 def novel_xml(novel_id):
