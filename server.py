@@ -232,7 +232,7 @@ def novel_main():
 def novel_xml(novel_id):
     rss = get_rss(novel_id)
     fd, filename = tempfile.mkstemp(suffix=".xml")
-    os.write(fd, rss)
+    os.write(fd, rss.encode('utf-8'))
     os.close(fd)
     logging.info("id:tempfile - %s:%s" % (novel_id, filename))
 
