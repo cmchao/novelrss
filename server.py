@@ -208,7 +208,7 @@ def novel_main():
     else:
         novels = get_collections().find()
 
-        form_str = '''
+        form_str = u'''
             <form action="/novel" method="post">
                 ck101 小說網址 (查詢 or 新增) <input name="novel_url" type="text" />
             </form>
@@ -216,7 +216,7 @@ def novel_main():
 
         table_str = "<table>\n"
         for item in novels:
-            table_str += '''
+            table_str += u'''
             現有小說
             <tr>
                 <td><a href="%s">%s</td>
@@ -224,7 +224,7 @@ def novel_main():
             </tr>''' % (item['first_link'], item['title'], item["_id"])
 
         outstr = "<html><title>ck101 novel rss</title><body>" + \
-                form_str + "\n<hr>\n" + table_str.encode('utf-8') + \
+                form_str + "\n<hr>\n" + table_str + \
                 "</body></html>"
         return outstr
 
