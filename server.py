@@ -34,8 +34,8 @@ def convert_to_rfc822(newtime):
 def get_collections():
     """ get default collection from mongodb """
     ### Standard URI format: mongodb://[dbuser:dbpassword@]host:port/dbname
-    ### MONGODB_URL is default environemnt variable pass by heroku
-    mongodb_url = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/test")
+    ### MONGOLAB_URL is default environemnt variable pass by heroku
+    mongodb_url = os.environ.get("MONGOLAB_URI", "mongodb://localhost:27017/test")
     client = pymongo.MongoClient(mongodb_url)
     db = client.get_default_database()
     return db['novels']
