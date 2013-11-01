@@ -167,8 +167,6 @@ def get_rss(novel_id):
     kUpdatePeriod = 5
 
     try:
-        url = "http://ck101.com/thread-2510702-30-3.html"
-        novel_id = validate_url(url)
         novels = get_collections()
         novel_data = novels.find_one({"_id" : novel_id})
 
@@ -184,6 +182,7 @@ def get_rss(novel_id):
 
         if do_update:
             logging.info("update '%s'" % (novel_id))
+            url = "http://ck101.com/thread-%s-1-1.html" % (novel_id)
             novel_data = parse_page_info(url)
             novel_data["_id"] = novel_id
             novels.update({'_id':novel_id}, novel_data, upsert=True)
