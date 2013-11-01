@@ -9,6 +9,7 @@ import lxml.html
 import os
 import pymongo
 import PyRSS2Gen
+import random
 import re
 import requests
 import sys
@@ -164,7 +165,7 @@ def setup_log():
     requests_log.setLevel(logging.WARNING)
 
 def get_rss(novel_id):
-    kUpdatePeriod = 5
+    kUpdatePeriod = 6 * 60 + random.randint(-10, 10)
 
     try:
         novels = get_collections()
