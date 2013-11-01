@@ -210,13 +210,14 @@ def novel_main():
 
         form_str = '''
             <form action="/novel" method="post">
-                ck101 小說網址 <input name="novel_url" type="text" />
+                ck101 小說網址 (查詢 or 新增) <input name="novel_url" type="text" />
             </form>
         '''
 
         table_str = "<table>\n"
         for item in novels:
             table_str += '''
+            現有小說
             <tr>
                 <td><a href="%s">%s</td>
                 <td><a href="novel/%s">rss</td>
