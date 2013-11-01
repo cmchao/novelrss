@@ -201,13 +201,13 @@ def get_rss(novel_id):
 def novel_main():
     novel_url = bottle.request.forms.get('novel_url')
     if novel_url:
+        logging.info("req : '%s'" % (novel_url))
         novel_id = validate_url(novel_url)
         return bottle.redirect('/novel/%s' % (novel_id))
 
     else:
         novels = get_collections().find()
 
-        
         form_str = '''
             <form action="/novel" method="post">
                 ck101 小說網址 <input name="novel_url" type="text" />
