@@ -13,6 +13,8 @@ import random
 import re
 import requests
 import sys
+reload(sys) 
+sys.setdefaultencoding('utf8') 
 import tempfile
 import time
 import traceback
