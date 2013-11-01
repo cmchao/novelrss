@@ -206,6 +206,8 @@ def novel_main():
 
     else:
         novels = get_collections().find()
+
+        
         form_str = '''
             <form action="/novel" method="post">
                 ck101 小說網址 <input name="novel_url" type="text" />
@@ -219,9 +221,10 @@ def novel_main():
                 <td><a href="%s">%s</td>
                 <td><a href="novel/%s">rss</td>
             </tr>''' % (item['first_link'], item['title'], item["_id"])
-        table_str += "</table>"
 
-        outstr = form_str + "\n<hr>\n" + table_str.encode('utf-8')
+        outstr = "<html><title>ck101 novel rss</title><body>" + \
+                form_str + "\n<hr>\n" + table_str.encode('utf-8') + \
+                "</body></html>"
         return outstr
 
 @bottle.route('/novel/<novel_id:re:\d+>')
