@@ -193,6 +193,8 @@ def get_rss(novel_id):
             cur_time = time.mktime(time.gmtime()) 
             if cur_time - last_time > kUpdatePeriod:
                 do_update = True
+
+            logging.debug("cur_time : %d,  last_time : %s" % (cur_time, last_time))
         else:
             do_update = True
 
