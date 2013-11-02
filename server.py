@@ -140,7 +140,7 @@ def parse_page_info(url = None):
             break
 
     logging.debug("%s:%s\n%s" % (ret_data['title'], ret_data['last_link'],
-                                 ",".join(ret_data['post'].keys())))
+                                 ",".join(sorted(ret_data['post'].keys()))))
             
     return ret_data
 
