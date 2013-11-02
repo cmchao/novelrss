@@ -147,7 +147,7 @@ def parse_page_info(url = None):
 
 def generate_rss2(novel_data):
     items = []
-    for post in novel_data['post'].values():
+    for post_id, post in sorted(novel_data['post'].items(), key=lambda k: k[0]):
         items.append(PyRSS2Gen.RSSItem(
                              title=post['title'], link=novel_data['last_link'],
                              description = post['description'], pubDate=post['pubDate'])
