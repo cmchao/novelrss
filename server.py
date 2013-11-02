@@ -180,8 +180,8 @@ def setup_log():
     requests_log.setLevel(logging.WARNING)
 
 def get_rss(novel_id):
-    kUpdatePeriod = 6 * 60 + random.randint(-10, 10)
-
+    kUpdatePeriod = int(os.environ.get("REFRASH_SEC", 6 * 60 + random.randint(-10, 10)))
+    
     try:
         novels = get_collections()
         novel_data = novels.find_one({"_id" : novel_id})
