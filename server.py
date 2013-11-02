@@ -153,6 +153,7 @@ def generate_rss2(novel_data):
                              description = post['description'], pubDate=post['pubDate'])
                     )
 
+    logging.debug("generate_rss2: " + novel_data['lastBuildData'])
     rss = PyRSS2Gen.RSS2(title=novel_data['title'], lastBuildDate=novel_data['lastBuildDate'],
                          link=novel_data['first_link'], description=novel_data['description'],
                          items=items)
@@ -194,6 +195,7 @@ def get_rss(novel_id):
             if cur_time - last_time > kUpdatePeriod:
                 do_update = True
 
+            logging.debug(novel_data['lastBuildData'])
             logging.debug("cur_time : %d,  last_time : %s" % (cur_time, last_time))
         else:
             do_update = True
