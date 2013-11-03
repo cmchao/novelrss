@@ -29,7 +29,7 @@ def validate_url(url):
 def convert_to_rfc822(newtime):
     try:
         tm = time.strptime(newtime, "%Y-%m-%d %H:%M:%S")
-        return email.utils.formatdate(time.mktime(tm))
+        return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(time.mktime(tm) - 3600 * 8))
     except :
         return ""
 
