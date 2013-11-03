@@ -154,7 +154,7 @@ def generate_rss2(novel_data):
                     )
 
     logging.debug("generate_rss2: " + novel_data['lastBuildDate'])
-    rss = PyRSS2Gen.RSS2(title=novel_data['title'], lastBuildDate=novel_data['lastBuildDate'],
+    rss = PyRSS2Gen.RSS2(title=novel_data['title'],
                          link=novel_data['first_link'], description=novel_data['description'],
                          items=items)
 
